@@ -1,0 +1,7 @@
+sources:
+  npm: true
+allowed:
+  - mit
+reviewed:
+  npm:
+    - crypto-js

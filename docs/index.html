@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="./monogram.min.js"></script>
+  </head>
+  <body>
+    <h1>monogram</h1>
+
+    <h2>hash</h2>
+    <pre id="hash"></pre>
+    <h2>json</h2>
+    <pre id="json"></pre>
+    <script>
+      var monogram = new monogram.Monogram()
+
+      var json = monogram.json()
+      document.getElementById('json').innerText = JSON.stringify(JSON.parse(json), null, '  ')
+
+      var hash = monogram.hash([
+        'webgl_unmasked_vendor',
+        'webgl_unmasked_renderer',
+        'webgl_shader_language_version',
+        'webgl_vendor',
+        'webgl_version',
+        'webgl_renderer',
+        'webgl_hash',
+        'canvas_hash',
+        'timezone',
+        'platform',
+        'languages',
+        'cookie_enabled',
+        'plugin_list_hash',
+        'screen_width',
+        'screen_height',
+        'screen_avail_width',
+        'screen_avail_height',
+        'screen_color_depth',
+        'screen_pixel_depth',
+        'screen_orientation_angle',
+        'screen_orientation_type',
+        'screen_device_pixel_ratio',
+        'screen_inner_width',
+        'screen_inner_height'
+      ])
+      document.getElementById('hash').innerText = hash
+    </script>
+  </body>
+</html>

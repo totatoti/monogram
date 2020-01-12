@@ -4,6 +4,7 @@ import { Canvas } from './fingerprints/canvas'
 import { Browser } from './fingerprints/browser'
 import { NavigationTiming } from './fingerprints/navigationTiming'
 import { Screen } from './fingerprints/screen'
+import { Audio } from './fingerprints/audio'
 import sha3 from 'crypto-js/sha3'
 import Hex from 'crypto-js/enc-hex'
 
@@ -18,6 +19,7 @@ export class Monogram {
     this.clientFingerprint = new Browser().fingerprint(this.clientFingerprint)
     this.clientFingerprint = new NavigationTiming().fingerprint(this.clientFingerprint)
     this.clientFingerprint = new Screen().fingerprint(this.clientFingerprint)
+    this.clientFingerprint = new Audio().fingerprint(this.clientFingerprint)
   }
 
   public json(): string {

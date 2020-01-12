@@ -42,7 +42,26 @@ var hash = monogram.hash([
   'screen_orientation_type',
   'screen_device_pixel_ratio',
   'screen_inner_width',
-  'screen_inner_height'
+  'screen_inner_height',
+  'audio_state',
+  'audio_sample_rate',
+  'audio_base_latency',
+  'audio_destination_max_channel_count',
+  'audio_destination_number_of_inputs',
+  'audio_destination_number_of_outputs',
+  'audio_destination_channel_count',
+  'audio_destination_channel_count_mode',
+  'audio_destination_channel_interpretation',
+  'audio_analyser_fft_size',
+  'audio_analyser_frequency_bin_count',
+  'audio_analyser_min_decibels',
+  'audio_analyser_max_decibels',
+  'audio_analyser_smoothing_time_constant',
+  'audio_analyser_number_of_inputs',
+  'audio_analyser_number_of_outputs',
+  'audio_analyser_channel_count',
+  'audio_analyser_channel_count_mode',
+  'audio_analyser_channel_interpretation'
 ])
 console.log(hash)
 ```

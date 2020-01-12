@@ -1958,7 +1958,7 @@
 
 	// IEEE754 conversions based on https://github.com/feross/ieee754
 	// eslint-disable-next-line no-shadow-restricted-names
-	var Infinity = 1 / 0;
+	var Infinity$1 = 1 / 0;
 	var abs = Math.abs;
 	var pow = Math.pow;
 	var floor$1 = Math.floor;
@@ -1976,7 +1976,7 @@
 	  var exponent, mantissa, c;
 	  number = abs(number);
 	  // eslint-disable-next-line no-self-compare
-	  if (number != number || number === Infinity) {
+	  if (number != number || number === Infinity$1) {
 	    // eslint-disable-next-line no-self-compare
 	    mantissa = number != number ? 1 : 0;
 	    exponent = eMax;
@@ -2033,7 +2033,7 @@
 	  if (exponent === 0) {
 	    exponent = 1 - eBias;
 	  } else if (exponent === eMax) {
-	    return mantissa ? NaN : sign ? -Infinity : Infinity;
+	    return mantissa ? NaN : sign ? -Infinity$1 : Infinity$1;
 	  } else {
 	    mantissa = mantissa + pow(2, mantissaLength);
 	    exponent = exponent - eBias;
@@ -8515,6 +8515,165 @@
 	  return Audio;
 	}();
 
+	var log$1 = Math.log;
+
+	// `Math.log1p` method implementation
+	// https://tc39.github.io/ecma262/#sec-math.log1p
+	var mathLog1p = Math.log1p || function log1p(x) {
+	  return (x = +x) > -1e-8 && x < 1e-8 ? x - x * x / 2 : log$1(1 + x);
+	};
+
+	var nativeAcosh = Math.acosh;
+	var log$2 = Math.log;
+	var sqrt = Math.sqrt;
+	var LN2$1 = Math.LN2;
+
+	var FORCED$3 = !nativeAcosh
+	  // V8 bug: https://code.google.com/p/v8/issues/detail?id=3509
+	  || Math.floor(nativeAcosh(Number.MAX_VALUE)) != 710
+	  // Tor Browser bug: Math.acosh(Infinity) -> NaN
+	  || nativeAcosh(Infinity) != Infinity;
+
+	// `Math.acosh` method
+	// https://tc39.github.io/ecma262/#sec-math.acosh
+	_export({ target: 'Math', stat: true, forced: FORCED$3 }, {
+	  acosh: function acosh(x) {
+	    return (x = +x) < 1 ? NaN : x > 94906265.62425156
+	      ? log$2(x) + LN2$1
+	      : mathLog1p(x - 1 + sqrt(x - 1) * sqrt(x + 1));
+	  }
+	});
+
+	var nativeAsinh = Math.asinh;
+	var log$3 = Math.log;
+	var sqrt$1 = Math.sqrt;
+
+	function asinh(x) {
+	  return !isFinite(x = +x) || x == 0 ? x : x < 0 ? -asinh(-x) : log$3(x + sqrt$1(x * x + 1));
+	}
+
+	// `Math.asinh` method
+	// https://tc39.github.io/ecma262/#sec-math.asinh
+	// Tor Browser bug: Math.asinh(0) -> -0
+	_export({ target: 'Math', stat: true, forced: !(nativeAsinh && 1 / nativeAsinh(0) > 0) }, {
+	  asinh: asinh
+	});
+
+	var nativeAtanh = Math.atanh;
+	var log$4 = Math.log;
+
+	// `Math.atanh` method
+	// https://tc39.github.io/ecma262/#sec-math.atanh
+	// Tor Browser bug: Math.atanh(-0) -> 0
+	_export({ target: 'Math', stat: true, forced: !(nativeAtanh && 1 / nativeAtanh(-0) < 0) }, {
+	  atanh: function atanh(x) {
+	    return (x = +x) == 0 ? x : log$4((1 + x) / (1 - x)) / 2;
+	  }
+	});
+
+	// `Math.sign` method implementation
+	// https://tc39.github.io/ecma262/#sec-math.sign
+	var mathSign = Math.sign || function sign(x) {
+	  // eslint-disable-next-line no-self-compare
+	  return (x = +x) == 0 || x != x ? x : x < 0 ? -1 : 1;
+	};
+
+	var abs$1 = Math.abs;
+	var pow$1 = Math.pow;
+
+	// `Math.cbrt` method
+	// https://tc39.github.io/ecma262/#sec-math.cbrt
+	_export({ target: 'Math', stat: true }, {
+	  cbrt: function cbrt(x) {
+	    return mathSign(x = +x) * pow$1(abs$1(x), 1 / 3);
+	  }
+	});
+
+	var nativeExpm1 = Math.expm1;
+	var exp = Math.exp;
+
+	// `Math.expm1` method implementation
+	// https://tc39.github.io/ecma262/#sec-math.expm1
+	var mathExpm1 = (!nativeExpm1
+	  // Old FF bug
+	  || nativeExpm1(10) > 22025.465794806719 || nativeExpm1(10) < 22025.4657948067165168
+	  // Tor Browser bug
+	  || nativeExpm1(-2e-17) != -2e-17
+	) ? function expm1(x) {
+	  return (x = +x) == 0 ? x : x > -1e-6 && x < 1e-6 ? x + x * x / 2 : exp(x) - 1;
+	} : nativeExpm1;
+
+	var nativeCosh = Math.cosh;
+	var abs$2 = Math.abs;
+	var E = Math.E;
+
+	// `Math.cosh` method
+	// https://tc39.github.io/ecma262/#sec-math.cosh
+	_export({ target: 'Math', stat: true, forced: !nativeCosh || nativeCosh(710) === Infinity }, {
+	  cosh: function cosh(x) {
+	    var t = mathExpm1(abs$2(x) - 1) + 1;
+	    return (t + 1 / (t * E * E)) * (E / 2);
+	  }
+	});
+
+	// `Math.expm1` method
+	// https://tc39.github.io/ecma262/#sec-math.expm1
+	_export({ target: 'Math', stat: true, forced: mathExpm1 != Math.expm1 }, { expm1: mathExpm1 });
+
+	// `Math.log1p` method
+	// https://tc39.github.io/ecma262/#sec-math.log1p
+	_export({ target: 'Math', stat: true }, { log1p: mathLog1p });
+
+	var abs$3 = Math.abs;
+	var exp$1 = Math.exp;
+	var E$1 = Math.E;
+
+	var FORCED$4 = fails(function () {
+	  return Math.sinh(-2e-17) != -2e-17;
+	});
+
+	// `Math.sinh` method
+	// https://tc39.github.io/ecma262/#sec-math.sinh
+	// V8 near Chromium 38 has a problem with very small numbers
+	_export({ target: 'Math', stat: true, forced: FORCED$4 }, {
+	  sinh: function sinh(x) {
+	    return abs$3(x = +x) < 1 ? (mathExpm1(x) - mathExpm1(-x)) / 2 : (exp$1(x - 1) - exp$1(-x - 1)) * (E$1 / 2);
+	  }
+	});
+
+	var exp$2 = Math.exp;
+
+	// `Math.tanh` method
+	// https://tc39.github.io/ecma262/#sec-math.tanh
+	_export({ target: 'Math', stat: true }, {
+	  tanh: function tanh(x) {
+	    var a = mathExpm1(x = +x);
+	    var b = mathExpm1(-x);
+	    return a == Infinity ? 1 : b == Infinity ? -1 : (a - b) / (exp$2(x) + exp$2(-x));
+	  }
+	});
+
+	var MathFP =
+	/** @class */
+	function () {
+	  function MathFP() {}
+
+	  MathFP.prototype.fingerprint = function (fingerprints) {
+	    fingerprints.set('math_asinh', new Attribute(String(Math.asinh(1)), 1));
+	    fingerprints.set('math_acosh', new Attribute(String(Math.acosh(1e300)), 1));
+	    fingerprints.set('math_atanh', new Attribute(String(Math.atanh(0.5)), 1));
+	    fingerprints.set('math_expm1', new Attribute(String(Math.expm1(1)), 1));
+	    fingerprints.set('math_cbrt', new Attribute(String(Math.cbrt(100)), 1));
+	    fingerprints.set('math_log1p', new Attribute(String(Math.log1p(10)), 1));
+	    fingerprints.set('math_sinh', new Attribute(String(Math.sinh(1)), 1));
+	    fingerprints.set('math_cosh', new Attribute(String(Math.cosh(10)), 1));
+	    fingerprints.set('math_tanh', new Attribute(String(Math.tanh(1)), 1));
+	    return fingerprints;
+	  };
+
+	  return MathFP;
+	}();
+
 	var Monogram =
 	/** @class */
 	function () {
@@ -8526,6 +8685,7 @@
 	    this.clientFingerprint = new NavigationTiming().fingerprint(this.clientFingerprint);
 	    this.clientFingerprint = new Screen().fingerprint(this.clientFingerprint);
 	    this.clientFingerprint = new Audio().fingerprint(this.clientFingerprint);
+	    this.clientFingerprint = new MathFP().fingerprint(this.clientFingerprint);
 	  }
 
 	  Monogram.prototype.json = function () {

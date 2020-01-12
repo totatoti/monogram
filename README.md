@@ -61,7 +61,16 @@ var hash = monogram.hash([
   'audio_analyser_number_of_outputs',
   'audio_analyser_channel_count',
   'audio_analyser_channel_count_mode',
-  'audio_analyser_channel_interpretation'
+  'audio_analyser_channel_interpretation',
+  'math_asinh',
+  'math_acosh',
+  'math_atanh',
+  'math_expm1',
+  'math_cbrt',
+  'math_log1p',
+  'math_sinh',
+  'math_cosh',
+  'math_tanh'
 ])
 console.log(hash)
 ```

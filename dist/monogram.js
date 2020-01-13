@@ -7910,7 +7910,11 @@
 	      fingerprints.set('webgl_vendor', new Attribute(ctx.getParameter(ctx.VENDOR), 1));
 	      fingerprints.set('webgl_version', new Attribute(ctx.getParameter(ctx.VERSION), 1));
 	      fingerprints.set('webgl_renderer', new Attribute(ctx.getParameter(ctx.RENDERER), 1));
-	      fingerprints.set('webgl_hash', new Attribute(this.webglHash(ctx, width, height), 1));
+	      var webglHash = this.webglHash(ctx, width, height);
+
+	      if (webglHash != null) {
+	        fingerprints.set('webgl_hash', new Attribute(webglHash, 1));
+	      }
 	    }
 
 	    document.body.removeChild(canvasElement);
@@ -7921,43 +7925,48 @@
 	    var vs = "\nattribute vec3 position;\nattribute vec4 color;\nuniform mat4 worldViewProjection;\nvarying vec4 vColor;\n\nvoid main(void){\n  vColor = color;\n  gl_Position = worldViewProjection * vec4(position, 1.0);\n}\n";
 	    var fs = "\nprecision mediump float;\nvarying vec4 vColor;\n\nvoid main(void){\n  gl_FragColor = vColor;\n}\n";
 	    var programInfo = createProgramInfo(ctx, [vs, fs]);
-	    var arrays = {
-	      position: [1.0, 1.0, 0.0, 1.0, -1.0, 0.0, -1.0, 1.0, 0.0, -1.0, -1.0, 0.0],
-	      color: [1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-	      indices: [0, 1, 2, 1, 2, 3]
-	    };
-	    var bufferInfo = createBufferInfoFromArrays(ctx, arrays);
-	    ctx.clearColor(0.0, 0.0, 0.0, 1.0);
-	    ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
-	    var m4$1 = m4;
-	    var projection = m4$1.perspective(30 * Math.PI / 180, width / height, 0.01, 100);
-	    var eye = [-2, -2, -3.5];
-	    var target = [0, 0, 0];
-	    var up = [0, 1, 0];
-	    var camera = m4$1.lookAt(eye, target, up);
-	    var view = m4$1.inverse(camera);
-	    var viewProjection = m4$1.multiply(projection, view);
-	    var world = m4$1.rotationY(0);
-	    var uniforms = {
-	      worldViewProjection: m4$1.multiply(viewProjection, world)
-	    };
-	    ctx.useProgram(programInfo.program);
-	    setBuffersAndAttributes(ctx, programInfo, bufferInfo);
-	    setUniforms(programInfo, uniforms);
-	    ctx.drawElements(ctx.TRIANGLES, bufferInfo.numElements, ctx.UNSIGNED_SHORT, 0);
-	    ctx.flush();
-	    var n = new Uint8Array(width * height * 4);
-	    ctx.readPixels(0, 0, width, height, ctx.RGBA, ctx.UNSIGNED_BYTE, n);
-	    var hex = '';
 
-	    for (var i = 0; i < n.byteLength; i++) {
-	      hex += n[i].toString(16);
+	    if (programInfo != null) {
+	      var arrays = {
+	        position: [1.0, 1.0, 0.0, 1.0, -1.0, 0.0, -1.0, 1.0, 0.0, -1.0, -1.0, 0.0],
+	        color: [1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+	        indices: [0, 1, 2, 1, 2, 3]
+	      };
+	      var bufferInfo = createBufferInfoFromArrays(ctx, arrays);
+	      ctx.clearColor(0.0, 0.0, 0.0, 1.0);
+	      ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
+	      var m4$1 = m4;
+	      var projection = m4$1.perspective(30 * Math.PI / 180, width / height, 0.01, 100);
+	      var eye = [-2, -2, -3.5];
+	      var target = [0, 0, 0];
+	      var up = [0, 1, 0];
+	      var camera = m4$1.lookAt(eye, target, up);
+	      var view = m4$1.inverse(camera);
+	      var viewProjection = m4$1.multiply(projection, view);
+	      var world = m4$1.rotationY(0);
+	      var uniforms = {
+	        worldViewProjection: m4$1.multiply(viewProjection, world)
+	      };
+	      ctx.useProgram(programInfo.program);
+	      setBuffersAndAttributes(ctx, programInfo, bufferInfo);
+	      setUniforms(programInfo, uniforms);
+	      ctx.drawElements(ctx.TRIANGLES, bufferInfo.numElements, ctx.UNSIGNED_SHORT, 0);
+	      ctx.flush();
+	      var n = new Uint8Array(width * height * 4);
+	      ctx.readPixels(0, 0, width, height, ctx.RGBA, ctx.UNSIGNED_BYTE, n);
+	      var hex = '';
+
+	      for (var i = 0; i < n.byteLength; i++) {
+	        hex += n[i].toString(16);
+	      }
+
+	      var hash = sha3(hex, {
+	        outputLength: 512
+	      });
+	      return hash.toString(encHex);
 	    }
 
-	    var hash = sha3(hex, {
-	      outputLength: 512
-	    });
-	    return hash.toString(encHex);
+	    return null;
 	  };
 
 	  return Webgl;

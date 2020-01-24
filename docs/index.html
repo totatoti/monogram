@@ -71,6 +71,15 @@
         'math_tanh'
       ])
       document.getElementById('hash').innerText = hash
+
+      window.addEventListener('click', () => {
+        var json = monogram.json()
+        document.getElementById('json').innerText = JSON.stringify(JSON.parse(json), null, '  ')
+      })
+      window.addEventListener('mousemove', () => {
+        var json = monogram.json()
+        document.getElementById('json').innerText = JSON.stringify(JSON.parse(json), null, '  ')
+      })
     </script>
   </body>
 </html>

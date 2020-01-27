@@ -50,7 +50,7 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.2.0",
     "rollup-plugin-typescript2": "^0.25.3",
-    "semantic-release": "^16.0.2",
+    "semantic-release": "^16.0.3",
     "typescript": "^3.7.5"
   },
   "config": {

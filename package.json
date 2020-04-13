@@ -21,7 +21,7 @@
     "@types/crypto-js": "^3.1.44",
     "@types/webgl-ext": "0.0.30",
     "@types/webgl2": "0.0.5",
-    "core-js": "^3.6.4",
+    "core-js": "^3.6.5",
     "crypto-js": "^4.0.0",
     "twgl.js": "^4.14.2"
   },

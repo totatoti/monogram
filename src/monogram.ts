@@ -43,7 +43,7 @@ export class Monogram {
 
   public hash(useData: string[]): string {
     let raw = ''
-    useData.forEach(key => {
+    useData.forEach((key) => {
       const feature = this.clientFingerprint.get(key)
       if (feature != null) {
         raw += feature.value

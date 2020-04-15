@@ -76,7 +76,7 @@ void main(void){
       const arrays = {
         position: [1.0, 1.0, 0.0, 1.0, -1.0, 0.0, -1.0, 1.0, 0.0, -1.0, -1.0, 0.0],
         color: [1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-        indices: [0, 1, 2, 1, 2, 3]
+        indices: [0, 1, 2, 1, 2, 3],
       }
       const bufferInfo = twgl.createBufferInfoFromArrays(ctx, arrays)
 
@@ -95,7 +95,7 @@ void main(void){
       const world = m4.rotationY(0)
 
       const uniforms = {
-        worldViewProjection: m4.multiply(viewProjection, world)
+        worldViewProjection: m4.multiply(viewProjection, world),
       }
 
       ctx.useProgram(programInfo.program)

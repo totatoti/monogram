@@ -31,7 +31,7 @@ export class Mouse implements FingerprintIntarface {
     this.prevY = 0
     this.lastScrollPos = 0
 
-    window.addEventListener('click', event => {
+    window.addEventListener('click', (event) => {
       const clickPos =
         event.pageX.toString() +
         ':' +
@@ -42,7 +42,7 @@ export class Mouse implements FingerprintIntarface {
       this.clickPos.push(clickPos)
     })
 
-    window.addEventListener('mousemove', event => {
+    window.addEventListener('mousemove', (event) => {
       let scrollPos = 0
       if (document != null && document.scrollingElement != null) {
         scrollPos = document.scrollingElement.scrollTop

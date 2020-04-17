@@ -1,4 +1,4 @@
-module.exports = function(api) {
+module.exports = function (api) {
   api.cache(true)
 
   const presets = [
@@ -6,14 +6,13 @@ module.exports = function(api) {
       '@babel/preset-env',
       {
         targets: ['> 0.25%, last 2 versions, Firefox ESR'],
-        modules: 'false',
         useBuiltIns: 'usage',
-        corejs: 3
-      }
-    ]
+        corejs: 3,
+      },
+    ],
   ]
 
   return {
-    presets
+    presets,
   }
 }

@@ -23,6 +23,7 @@
     "@types/webgl2": "0.0.5",
     "core-js": "^3.6.5",
     "crypto-js": "^4.0.0",
+    "mathjs": "^6.6.4",
     "twgl.js": "^4.14.2"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "@babel/preset-env": "^7.9.5",
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
+    "@types/mathjs": "^6.0.5",
     "@typescript-eslint/eslint-plugin": "^2.28.0",
     "@typescript-eslint/parser": "^2.28.0",
     "commitizen": "^4.0.4",

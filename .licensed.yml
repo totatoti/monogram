@@ -2,6 +2,9 @@ sources:
   npm: true
 allowed:
   - mit
+  - apache-2.0
 reviewed:
   npm:
     - crypto-js
+    - fraction.js
+    - complex.js

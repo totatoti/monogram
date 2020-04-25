@@ -5,8 +5,8 @@ module.exports = {
     [
       '@semantic-release/github',
       {
-        assets: [{ path: 'dist/monogram.js' }, { path: 'dist/monogram.min.js' }]
-      }
-    ]
-  ]
+        assets: [{ path: 'dist/monogram.js' }, { path: 'dist/monogram.min.js' }],
+      },
+    ],
+  ],
 }

@@ -16,8 +16,8 @@ Dependencies:<% _.forEach(dependencies, function (dependency) { %>
 const licenseConfig = license({
   banner: {
     commentStyle: 'ignored',
-    content: banner
-  }
+    content: banner,
+  },
 })
 
 export default [
@@ -26,15 +26,15 @@ export default [
     output: {
       file: 'dist/monogram.js',
       format: 'umd',
-      name: 'monogram'
+      name: 'monogram',
     },
     plugins: [
-      nodeResolve(),
+      nodeResolve({ preferBuiltins: true }),
       commonjs(),
       typescript(),
       babel({ exclude: 'node_modules/**', extensions: ['.js', '.ts'] }),
-      licenseConfig
-    ]
+      licenseConfig,
+    ],
   },
   {
     input: 'src/monogram.ts',
@@ -42,21 +42,21 @@ export default [
       {
         file: 'dist/monogram.min.js',
         format: 'umd',
-        name: 'monogram'
+        name: 'monogram',
       },
       {
         file: 'docs/monogram.min.js',
         format: 'umd',
-        name: 'monogram'
-      }
+        name: 'monogram',
+      },
     ],
     plugins: [
-      nodeResolve(),
+      nodeResolve({ preferBuiltins: true }),
       commonjs(),
       typescript(),
       babel({ exclude: 'node_modules/**', extensions: ['.js', '.ts'] }),
       licenseConfig,
-      terser()
-    ]
-  }
+      terser(),
+    ],
+  },
 ]

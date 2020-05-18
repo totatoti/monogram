@@ -24,7 +24,7 @@
     "core-js": "^3.6.5",
     "crypto-js": "^4.0.0",
     "mathjs": "^6.6.4",
-    "twgl.js": "^4.14.2"
+    "twgl.js": "^4.15.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",

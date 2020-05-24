@@ -34,7 +34,7 @@ export class Monogram {
   }
 
   public json(): string {
-    return JSON.stringify([...this.clientFingerprint])
+    return JSON.stringify(Object.fromEntries(this.clientFingerprint))
   }
 
   public data(): Map<string, Attribute> {

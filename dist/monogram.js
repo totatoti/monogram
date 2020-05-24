@@ -4,10 +4,9 @@
  *
  * Dependencies:
  * core-js 3.6.5 | MIT
- * tslib 1.10.0 | Apache-2.0
- * twgl.js 4.14.2 | MIT
+ * twgl.js 4.15.0 | MIT
  * crypto-js 4.0.0 | MIT
- * mathjs 6.6.4 | Apache-2.0
+ * mathjs 7.0.0 | Apache-2.0
  * typed-function 1.1.1 |
  * decimal.js 10.2.0 | MIT
  * complex.js 2.0.11 | MIT OR GPL-2.0
@@ -1603,6 +1602,24 @@
 	  return function Map() { return init(this, arguments.length ? arguments[0] : undefined); };
 	}, collectionStrong);
 
+	var createProperty = function (object, key, value) {
+	  var propertyKey = toPrimitive(key);
+	  if (propertyKey in object) objectDefineProperty.f(object, propertyKey, createPropertyDescriptor(0, value));
+	  else object[propertyKey] = value;
+	};
+
+	// `Object.fromEntries` method
+	// https://github.com/tc39/proposal-object-from-entries
+	_export({ target: 'Object', stat: true }, {
+	  fromEntries: function fromEntries(iterable) {
+	    var obj = {};
+	    iterate_1(iterable, function (k, v) {
+	      createProperty(obj, k, v);
+	    }, undefined, true);
+	    return obj;
+	  }
+	});
+
 	// `Object.prototype.toString` method implementation
 	// https://tc39.github.io/ecma262/#sec-object.prototype.tostring
 	var objectToString = toStringTagSupport ? {}.toString : function toString() {
@@ -1776,44 +1793,6 @@
 	      }
 	    }
 	  }
-	}
-
-	/*! *****************************************************************************
-	Copyright (c) Microsoft Corporation. All rights reserved.
-	Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-	this file except in compliance with the License. You may obtain a copy of the
-	License at http://www.apache.org/licenses/LICENSE-2.0
-
-	THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-	KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-	WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-	MERCHANTABLITY OR NON-INFRINGEMENT.
-
-	See the Apache Version 2.0 License for specific language governing permissions
-	and limitations under the License.
-	***************************************************************************** */
-
-	function __read(o, n) {
-	    var m = typeof Symbol === "function" && o[Symbol.iterator];
-	    if (!m) return o;
-	    var i = m.call(o), r, ar = [], e;
-	    try {
-	        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-	    }
-	    catch (error) { e = { error: error }; }
-	    finally {
-	        try {
-	            if (r && !r.done && (m = i["return"])) m.call(i);
-	        }
-	        finally { if (e) throw e.error; }
-	    }
-	    return ar;
-	}
-
-	function __spread() {
-	    for (var ar = [], i = 0; i < arguments.length; i++)
-	        ar = ar.concat(__read(arguments[i]));
-	    return ar;
 	}
 
 	var arrayBufferNative = typeof ArrayBuffer !== 'undefined' && typeof DataView !== 'undefined';
@@ -3064,7 +3043,7 @@
 	  return Attribute;
 	}();
 
-	/* @license twgl.js 4.14.2 Copyright (c) 2015, Gregg Tavares All Rights Reserved.
+	/* @license twgl.js 4.15.0 Copyright (c) 2015, Gregg Tavares All Rights Reserved.
 	Available via the MIT license.
 	see: http://github.com/greggman/twgl.js for details */
 	/*
@@ -8486,6 +8465,8 @@
 	    fingerprints.set('languages', new Attribute(window.navigator.languages.join(','), 1));
 	    fingerprints.set('cookie_enabled', new Attribute(String(navigator.cookieEnabled), 1));
 	    fingerprints.set('plugin_list_hash', new Attribute(this.pluginListHash(), 1));
+	    fingerprints.set('webdriver', new Attribute(String(window.navigator.webdriver), 1));
+	    fingerprints.set('isnan_length', new Attribute(String(isNaN.toString().length), 1));
 	    return fingerprints;
 	  };
 
@@ -10618,27 +10599,7 @@
 	      return toEngineering(value, precision);
 
 	    case 'auto':
-	      // TODO: clean up some day. Deprecated since: 2018-01-24
-	      // @deprecated upper and lower are replaced with upperExp and lowerExp since v4.0.0
-	      if (options && options.exponential && (options.exponential.lower !== undefined || options.exponential.upper !== undefined)) {
-	        var fixedOptions = mapObject(options, function (x) {
-	          return x;
-	        });
-	        fixedOptions.exponential = undefined;
-
-	        if (options.exponential.lower !== undefined) {
-	          fixedOptions.lowerExp = Math.round(Math.log(options.exponential.lower) / Math.LN10);
-	        }
-
-	        if (options.exponential.upper !== undefined) {
-	          fixedOptions.upperExp = Math.round(Math.log(options.exponential.upper) / Math.LN10);
-	        }
-
-	        console.warn('Deprecation warning: Formatting options exponential.lower and exponential.upper ' + '(minimum and maximum value) ' + 'are replaced with exponential.lowerExp and exponential.upperExp ' + '(minimum and maximum exponent) since version 4.0.0. ' + 'Replace ' + JSON.stringify(options) + ' with ' + JSON.stringify(fixedOptions));
-	        return toPrecision(value, precision, fixedOptions);
-	      } // remove trailing zeros after the decimal point
-
-
+	      // remove trailing zeros after the decimal point
 	      return toPrecision(value, precision, options && options).replace(/((\.\d*?)(0+))($|e)/, function () {
 	        var digits = arguments[2];
 	        var e = arguments[4];
@@ -11045,7 +11006,6 @@
 	 * @param {Object | Function | number} [options]
 	 * @return {string} str The formatted value
 	 */
-
 	function format$1(value, options) {
 	  if (typeof options === 'function') {
 	    // handle format(value, fn)
@@ -11088,28 +11048,8 @@
 
 	    case 'auto':
 	      {
-	        // TODO: clean up some day. Deprecated since: 2018-01-24
-	        // @deprecated upper and lower are replaced with upperExp and lowerExp since v4.0.0
-	        if (options && options.exponential && (options.exponential.lower !== undefined || options.exponential.upper !== undefined)) {
-	          var fixedOptions = mapObject(options, function (x) {
-	            return x;
-	          });
-	          fixedOptions.exponential = undefined;
-
-	          if (options.exponential.lower !== undefined) {
-	            fixedOptions.lowerExp = Math.round(Math.log(options.exponential.lower) / Math.LN10);
-	          }
-
-	          if (options.exponential.upper !== undefined) {
-	            fixedOptions.upperExp = Math.round(Math.log(options.exponential.upper) / Math.LN10);
-	          }
-
-	          console.warn('Deprecation warning: Formatting options exponential.lower and exponential.upper ' + '(minimum and maximum value) ' + 'are replaced with exponential.lowerExp and exponential.upperExp ' + '(minimum and maximum exponent) since version 4.0.0. ' + 'Replace ' + JSON.stringify(options) + ' with ' + JSON.stringify(fixedOptions));
-	          return format$1(value, fixedOptions);
-	        } // determine lower and upper bound for exponential notation.
+	        // determine lower and upper bound for exponential notation.
 	        // TODO: implement support for upper and lower to be BigNumbers themselves
-
-
 	        var lowerExp = options && options.lowerExp !== undefined ? options.lowerExp : -3;
 	        var upperExp = options && options.upperExp !== undefined ? options.upperExp : 5; // handle special case zero
 
@@ -19626,18 +19566,6 @@
 	  Matrix.prototype.type = 'Matrix';
 	  Matrix.prototype.isMatrix = true;
 	  /**
-	   * Get the Matrix storage constructor for the given format.
-	   *
-	   * @param {string} format       The Matrix storage format.
-	   *
-	   * @return {Function}           The Matrix storage constructor.
-	   */
-
-	  Matrix.storage = function (format) {
-	    // TODO: deprecated since v6.0.0. Clean up some day
-	    throw new Error('Matrix.storage is deprecated since v6.0.0. ' + 'Use the factory function math.matrix instead.');
-	  };
-	  /**
 	   * Get the storage format used by the matrix.
 	   *
 	   * Usage:
@@ -19645,7 +19573,6 @@
 	   *
 	   * @return {string}           The storage format.
 	   */
-
 
 	  Matrix.prototype.storage = function () {
 	    // must be implemented by each of the Matrix implementations
@@ -22748,7 +22675,16 @@
 	    'Array | Matrix': function ArrayMatrix(x) {
 	      return deepMap(x, number);
 	    }
-	  });
+	  }); // reviver function to parse a JSON object like:
+	  //
+	  //     {"mathjs":"number","value":"2.3"}
+	  //
+	  // into a number 2.3
+
+	  number.fromJSON = function (json) {
+	    return parseFloat(json.value);
+	  };
+
 	  return number;
 	});
 
@@ -24291,13 +24227,14 @@
 	});
 
 	var name$r = 'multiply';
-	var dependencies$s = ['typed', 'matrix', 'addScalar', 'multiplyScalar', 'equalScalar'];
+	var dependencies$s = ['typed', 'matrix', 'addScalar', 'multiplyScalar', 'equalScalar', 'dot'];
 	var createMultiply = /* #__PURE__ */factory(name$r, dependencies$s, function (_ref) {
 	  var typed = _ref.typed,
 	      matrix = _ref.matrix,
 	      addScalar = _ref.addScalar,
 	      multiplyScalar = _ref.multiplyScalar,
-	      equalScalar = _ref.equalScalar;
+	      equalScalar = _ref.equalScalar,
+	      dot = _ref.dot;
 	  var algorithm11 = createAlgorithm11({
 	    typed: typed,
 	    equalScalar: equalScalar
@@ -24493,38 +24430,9 @@
 	    // check empty vector
 	    if (n === 0) {
 	      throw new Error('Cannot multiply two empty vectors');
-	    } // a dense
-
-
-	    var adata = a._data;
-	    var adt = a._datatype; // b dense
-
-	    var bdata = b._data;
-	    var bdt = b._datatype; // datatype
-
-	    var dt; // addScalar signature to use
-
-	    var af = addScalar; // multiplyScalar signature to use
-
-	    var mf = multiplyScalar; // process data types
-
-	    if (adt && bdt && adt === bdt && typeof adt === 'string') {
-	      // datatype
-	      dt = adt; // find signatures that matches (dt, dt)
-
-	      af = typed.find(addScalar, [dt, dt]);
-	      mf = typed.find(multiplyScalar, [dt, dt]);
-	    } // result (do not initialize it with zero)
-
-
-	    var c = mf(adata[0], bdata[0]); // loop data
-
-	    for (var i = 1; i < n; i++) {
-	      // multiply and accumulate
-	      c = af(c, mf(adata[i], bdata[i]));
 	    }
 
-	    return c;
+	    return dot(a, b);
 	  }
 	  /**
 	   * C = A * B
@@ -25562,9 +25470,56 @@
 	  }
 	});
 
-	var name$v = 'identity';
-	var dependencies$w = ['typed', 'config', 'matrix', 'BigNumber', 'DenseMatrix', 'SparseMatrix'];
-	var createIdentity = /* #__PURE__ */factory(name$v, dependencies$w, function (_ref) {
+	var name$v = 'conj';
+	var dependencies$w = ['typed'];
+	var createConj = /* #__PURE__ */factory(name$v, dependencies$w, function (_ref) {
+	  var typed = _ref.typed;
+
+	  /**
+	   * Compute the complex conjugate of a complex value.
+	   * If `x = a+bi`, the complex conjugate of `x` is `a - bi`.
+	   *
+	   * For matrices, the function is evaluated element wise.
+	   *
+	   * Syntax:
+	   *
+	   *    math.conj(x)
+	   *
+	   * Examples:
+	   *
+	   *    math.conj(math.complex('2 + 3i'))  // returns Complex 2 - 3i
+	   *    math.conj(math.complex('2 - 3i'))  // returns Complex 2 + 3i
+	   *    math.conj(math.complex('-5.2i'))  // returns Complex 5.2i
+	   *
+	   * See also:
+	   *
+	   *    re, im, arg, abs
+	   *
+	   * @param {number | BigNumber | Complex | Array | Matrix} x
+	   *            A complex number or array with complex numbers
+	   * @return {number | BigNumber | Complex | Array | Matrix}
+	   *            The complex conjugate of x
+	   */
+	  var conj = typed(name$v, {
+	    number: function number(x) {
+	      return x;
+	    },
+	    BigNumber: function BigNumber(x) {
+	      return x;
+	    },
+	    Complex: function Complex(x) {
+	      return x.conjugate();
+	    },
+	    'Array | Matrix': function ArrayMatrix(x) {
+	      return deepMap(x, conj);
+	    }
+	  });
+	  return conj;
+	});
+
+	var name$w = 'identity';
+	var dependencies$x = ['typed', 'config', 'matrix', 'BigNumber', 'DenseMatrix', 'SparseMatrix'];
+	var createIdentity = /* #__PURE__ */factory(name$w, dependencies$x, function (_ref) {
 	  var typed = _ref.typed,
 	      config = _ref.config,
 	      matrix = _ref.matrix,
@@ -25602,7 +25557,7 @@
 	   *
 	   * @return {Matrix | Array | number} A matrix with ones on the diagonal.
 	   */
-	  return typed(name$v, {
+	  return typed(name$w, {
 	    '': function _() {
 	      return config.matrix === 'Matrix' ? matrix([]) : [];
 	    },
@@ -25710,6 +25665,54 @@
 	function noFraction() {
 	  throw new Error('No "fraction" implementation available');
 	}
+	function noMatrix() {
+	  throw new Error('No "matrix" implementation available');
+	}
+
+	var name$x = 'size';
+	var dependencies$y = ['typed', 'config', '?matrix'];
+	var createSize = /* #__PURE__ */factory(name$x, dependencies$y, function (_ref) {
+	  var typed = _ref.typed,
+	      config = _ref.config,
+	      matrix = _ref.matrix;
+
+	  /**
+	   * Calculate the size of a matrix or scalar.
+	   *
+	   * Syntax:
+	   *
+	   *     math.size(x)
+	   *
+	   * Examples:
+	   *
+	   *     math.size(2.3)                  // returns []
+	   *     math.size('hello world')        // returns [11]
+	   *
+	   *     const A = [[1, 2, 3], [4, 5, 6]]
+	   *     math.size(A)                    // returns [2, 3]
+	   *     math.size(math.range(1,6))      // returns [5]
+	   *
+	   * See also:
+	   *
+	   *     resize, squeeze, subset
+	   *
+	   * @param {boolean | number | Complex | Unit | string | Array | Matrix} x  A matrix
+	   * @return {Array | Matrix} A vector with size of `x`.
+	   */
+	  return typed(name$x, {
+	    Matrix: function Matrix(x) {
+	      return x.create(x.size());
+	    },
+	    Array: arraySize,
+	    string: function string(x) {
+	      return config.matrix === 'Array' ? [x.length] : matrix([x.length]);
+	    },
+	    'number | Complex | BigNumber | Unit | boolean | null': function numberComplexBigNumberUnitBooleanNull(x) {
+	      // scalar
+	      return config.matrix === 'Array' ? [] : matrix ? matrix([]) : noMatrix();
+	    }
+	  });
+	});
 
 	/**
 	 * Improve error messages for statistics functions. Errors are typically
@@ -25739,9 +25742,9 @@
 	  return err;
 	}
 
-	var name$w = 'numeric';
-	var dependencies$x = ['number', '?bignumber', '?fraction'];
-	var createNumeric = /* #__PURE__ */factory(name$w, dependencies$x, function (_ref) {
+	var name$y = 'numeric';
+	var dependencies$z = ['number', '?bignumber', '?fraction'];
+	var createNumeric = /* #__PURE__ */factory(name$y, dependencies$z, function (_ref) {
 	  var _number = _ref.number,
 	      bignumber = _ref.bignumber,
 	      fraction = _ref.fraction;
@@ -25811,9 +25814,9 @@
 	  };
 	});
 
-	var name$x = 'divideScalar';
-	var dependencies$y = ['typed', 'numeric'];
-	var createDivideScalar = /* #__PURE__ */factory(name$x, dependencies$y, function (_ref) {
+	var name$z = 'divideScalar';
+	var dependencies$A = ['typed', 'numeric'];
+	var createDivideScalar = /* #__PURE__ */factory(name$z, dependencies$A, function (_ref) {
 	  var typed = _ref.typed,
 	      numeric = _ref.numeric;
 
@@ -25829,7 +25832,7 @@
 	   * @return {number | BigNumber | Fraction | Complex | Unit}     Quotient, `x / y`
 	   * @private
 	   */
-	  var divideScalar = typed(name$x, {
+	  var divideScalar = typed(name$z, {
 	    'number, number': function numberNumber(x, y) {
 	      return x / y;
 	    },
@@ -25864,9 +25867,9 @@
 	  return divideScalar;
 	});
 
-	var name$y = 'smaller';
-	var dependencies$z = ['typed', 'config', 'matrix', 'DenseMatrix'];
-	var createSmaller = /* #__PURE__ */factory(name$y, dependencies$z, function (_ref) {
+	var name$A = 'smaller';
+	var dependencies$B = ['typed', 'config', 'matrix', 'DenseMatrix'];
+	var createSmaller = /* #__PURE__ */factory(name$A, dependencies$B, function (_ref) {
 	  var typed = _ref.typed,
 	      config = _ref.config,
 	      matrix = _ref.matrix,
@@ -25920,7 +25923,7 @@
 	   * @return {boolean | Array | Matrix} Returns true when the x is smaller than y, else returns false
 	   */
 
-	  var smaller = typed(name$y, {
+	  var smaller = typed(name$A, {
 	    'boolean, boolean': function booleanBoolean(x, y) {
 	      return x < y;
 	    },
@@ -25991,9 +25994,9 @@
 	  return smaller;
 	});
 
-	var name$z = 'larger';
-	var dependencies$A = ['typed', 'config', 'matrix', 'DenseMatrix'];
-	var createLarger = /* #__PURE__ */factory(name$z, dependencies$A, function (_ref) {
+	var name$B = 'larger';
+	var dependencies$C = ['typed', 'config', 'matrix', 'DenseMatrix'];
+	var createLarger = /* #__PURE__ */factory(name$B, dependencies$C, function (_ref) {
 	  var typed = _ref.typed,
 	      config = _ref.config,
 	      matrix = _ref.matrix,
@@ -26047,7 +26050,7 @@
 	   * @return {boolean | Array | Matrix} Returns true when the x is larger than y, else returns false
 	   */
 
-	  var larger = typed(name$z, {
+	  var larger = typed(name$B, {
 	    'boolean, boolean': function booleanBoolean(x, y) {
 	      return x > y;
 	    },
@@ -26118,9 +26121,9 @@
 	  return larger;
 	});
 
-	var name$A = 'FibonacciHeap';
-	var dependencies$B = ['smaller', 'larger'];
-	var createFibonacciHeapClass = /* #__PURE__ */factory(name$A, dependencies$B, function (_ref) {
+	var name$C = 'FibonacciHeap';
+	var dependencies$D = ['smaller', 'larger'];
+	var createFibonacciHeapClass = /* #__PURE__ */factory(name$C, dependencies$D, function (_ref) {
 	  var smaller = _ref.smaller,
 	      larger = _ref.larger;
 	  var oneOverLogPhi = 1.0 / Math.log((1.0 + Math.sqrt(5.0)) / 2.0);
@@ -26505,9 +26508,9 @@
 	  isClass: true
 	});
 
-	var name$B = 'Spa';
-	var dependencies$C = ['addScalar', 'equalScalar', 'FibonacciHeap'];
-	var createSpaClass = /* #__PURE__ */factory(name$B, dependencies$C, function (_ref) {
+	var name$D = 'Spa';
+	var dependencies$E = ['addScalar', 'equalScalar', 'FibonacciHeap'];
+	var createSpaClass = /* #__PURE__ */factory(name$D, dependencies$E, function (_ref) {
 	  var addScalar = _ref.addScalar,
 	      equalScalar = _ref.equalScalar,
 	      FibonacciHeap = _ref.FibonacciHeap;
@@ -26657,9 +26660,9 @@
 	  isClass: true
 	});
 
-	var name$C = 'add';
-	var dependencies$D = ['typed', 'matrix', 'addScalar', 'equalScalar', 'DenseMatrix', 'SparseMatrix'];
-	var createAdd = /* #__PURE__ */factory(name$C, dependencies$D, function (_ref) {
+	var name$E = 'add';
+	var dependencies$F = ['typed', 'matrix', 'addScalar', 'equalScalar', 'DenseMatrix', 'SparseMatrix'];
+	var createAdd = /* #__PURE__ */factory(name$E, dependencies$F, function (_ref) {
 	  var typed = _ref.typed,
 	      matrix = _ref.matrix,
 	      addScalar = _ref.addScalar,
@@ -26718,7 +26721,7 @@
 	   * @return {number | BigNumber | Fraction | Complex | Unit | Array | Matrix} Sum of `x` and `y`
 	   */
 
-	  var add = typed(name$C, extend({
+	  var add = typed(name$E, extend({
 	    // we extend the signatures of addScalar with signatures dealing with matrices
 	    'DenseMatrix, DenseMatrix': function DenseMatrixDenseMatrix(x, y) {
 	      return algorithm13(x, y, addScalar);
@@ -26778,9 +26781,183 @@
 	  return add;
 	});
 
-	var name$D = 'lup';
-	var dependencies$E = ['typed', 'matrix', 'abs', 'addScalar', 'divideScalar', 'multiplyScalar', 'subtract', 'larger', 'equalScalar', 'unaryMinus', 'DenseMatrix', 'SparseMatrix', 'Spa'];
-	var createLup = /* #__PURE__ */factory(name$D, dependencies$E, function (_ref) {
+	var name$F = 'dot';
+	var dependencies$G = ['typed', 'addScalar', 'multiplyScalar', 'conj', 'size'];
+	var createDot = /* #__PURE__ */factory(name$F, dependencies$G, function (_ref) {
+	  var typed = _ref.typed,
+	      addScalar = _ref.addScalar,
+	      multiplyScalar = _ref.multiplyScalar,
+	      conj = _ref.conj,
+	      size = _ref.size;
+
+	  /**
+	   * Calculate the dot product of two vectors. The dot product of
+	   * `A = [a1, a2, ..., an]` and `B = [b1, b2, ..., bn]` is defined as:
+	   *
+	   *    dot(A, B) = conj(a1) * b1 + conj(a2) * b2 + ... + conj(an) * bn
+	   *
+	   * Syntax:
+	   *
+	   *    math.dot(x, y)
+	   *
+	   * Examples:
+	   *
+	   *    math.dot([2, 4, 1], [2, 2, 3])       // returns number 15
+	   *    math.multiply([2, 4, 1], [2, 2, 3])  // returns number 15
+	   *
+	   * See also:
+	   *
+	   *    multiply, cross
+	   *
+	   * @param  {Array | Matrix} x     First vector
+	   * @param  {Array | Matrix} y     Second vector
+	   * @return {number}               Returns the dot product of `x` and `y`
+	   */
+	  return typed(name$F, {
+	    'Array | DenseMatrix, Array | DenseMatrix': _denseDot,
+	    'SparseMatrix, SparseMatrix': _sparseDot
+	  });
+
+	  function _validateDim(x, y) {
+	    var xSize = _size(x);
+
+	    var ySize = _size(y);
+
+	    var xLen, yLen;
+
+	    if (xSize.length === 1) {
+	      xLen = xSize[0];
+	    } else if (xSize.length === 2 && xSize[1] === 1) {
+	      xLen = xSize[0];
+	    } else {
+	      throw new RangeError('Expected a column vector, instead got a matrix of size (' + xSize.join(', ') + ')');
+	    }
+
+	    if (ySize.length === 1) {
+	      yLen = ySize[0];
+	    } else if (ySize.length === 2 && ySize[1] === 1) {
+	      yLen = ySize[0];
+	    } else {
+	      throw new RangeError('Expected a column vector, instead got a matrix of size (' + ySize.join(', ') + ')');
+	    }
+
+	    if (xLen !== yLen) throw new RangeError('Vectors must have equal length (' + xLen + ' != ' + yLen + ')');
+	    if (xLen === 0) throw new RangeError('Cannot calculate the dot product of empty vectors');
+	    return xLen;
+	  }
+
+	  function _denseDot(a, b) {
+	    var N = _validateDim(a, b);
+
+	    var adata = isMatrix(a) ? a._data : a;
+	    var adt = isMatrix(a) ? a._datatype : undefined;
+	    var bdata = isMatrix(b) ? b._data : b;
+	    var bdt = isMatrix(b) ? b._datatype : undefined; // are these 2-dimensional column vectors? (as opposed to 1-dimensional vectors)
+
+	    var aIsColumn = _size(a).length === 2;
+	    var bIsColumn = _size(b).length === 2;
+	    var add = addScalar;
+	    var mul = multiplyScalar; // process data types
+
+	    if (adt && bdt && adt === bdt && typeof adt === 'string') {
+	      var dt = adt; // find signatures that matches (dt, dt)
+
+	      add = typed.find(addScalar, [dt, dt]);
+	      mul = typed.find(multiplyScalar, [dt, dt]);
+	    } // both vectors 1-dimensional
+
+
+	    if (!aIsColumn && !bIsColumn) {
+	      var c = mul(conj(adata[0]), bdata[0]);
+
+	      for (var i = 1; i < N; i++) {
+	        c = add(c, mul(conj(adata[i]), bdata[i]));
+	      }
+
+	      return c;
+	    } // a is 1-dim, b is column
+
+
+	    if (!aIsColumn && bIsColumn) {
+	      var _c = mul(conj(adata[0]), bdata[0][0]);
+
+	      for (var _i = 1; _i < N; _i++) {
+	        _c = add(_c, mul(conj(adata[_i]), bdata[_i][0]));
+	      }
+
+	      return _c;
+	    } // a is column, b is 1-dim
+
+
+	    if (aIsColumn && !bIsColumn) {
+	      var _c2 = mul(conj(adata[0][0]), bdata[0]);
+
+	      for (var _i2 = 1; _i2 < N; _i2++) {
+	        _c2 = add(_c2, mul(conj(adata[_i2][0]), bdata[_i2]));
+	      }
+
+	      return _c2;
+	    } // both vectors are column
+
+
+	    if (aIsColumn && bIsColumn) {
+	      var _c3 = mul(conj(adata[0][0]), bdata[0][0]);
+
+	      for (var _i3 = 1; _i3 < N; _i3++) {
+	        _c3 = add(_c3, mul(conj(adata[_i3][0]), bdata[_i3][0]));
+	      }
+
+	      return _c3;
+	    }
+	  }
+
+	  function _sparseDot(x, y) {
+	    _validateDim(x, y);
+
+	    var xindex = x._index;
+	    var xvalues = x._values;
+	    var yindex = y._index;
+	    var yvalues = y._values; // TODO optimize add & mul using datatype
+
+	    var c = 0;
+	    var add = addScalar;
+	    var mul = multiplyScalar;
+	    var i = 0;
+	    var j = 0;
+
+	    while (i < xindex.length && j < yindex.length) {
+	      var I = xindex[i];
+	      var J = yindex[j];
+
+	      if (I < J) {
+	        i++;
+	        continue;
+	      }
+
+	      if (I > J) {
+	        j++;
+	        continue;
+	      }
+
+	      if (I === J) {
+	        c = add(c, mul(xvalues[i], yvalues[j]));
+	        i++;
+	        j++;
+	      }
+	    }
+
+	    return c;
+	  } // TODO remove this once #1771 is fixed
+
+
+	  function _size(x) {
+	    return isMatrix(x) ? x.size() : size(x);
+	  }
+	});
+
+	var name$G = 'lup';
+	var dependencies$H = ['typed', 'matrix', 'abs', 'addScalar', 'divideScalar', 'multiplyScalar', 'subtract', 'larger', 'equalScalar', 'unaryMinus', 'DenseMatrix', 'SparseMatrix', 'Spa'];
+	var createLup = /* #__PURE__ */factory(name$G, dependencies$H, function (_ref) {
 	  var typed = _ref.typed,
 	      matrix = _ref.matrix,
 	      abs = _ref.abs,
@@ -26821,7 +26998,7 @@
 	   *
 	   * @return {{L: Array | Matrix, U: Array | Matrix, P: Array.<number>}} The lower triangular matrix, the upper triangular matrix and the permutation matrix.
 	   */
-	  return typed(name$D, {
+	  return typed(name$G, {
 	    DenseMatrix: function DenseMatrix(m) {
 	      return _denseLUP(m);
 	    },
@@ -27188,9 +27365,9 @@
 	  }
 	});
 
-	var name$E = 'det';
-	var dependencies$F = ['typed', 'matrix', 'subtract', 'multiply', 'unaryMinus', 'lup'];
-	var createDet = /* #__PURE__ */factory(name$E, dependencies$F, function (_ref) {
+	var name$H = 'det';
+	var dependencies$I = ['typed', 'matrix', 'subtract', 'multiply', 'unaryMinus', 'lup'];
+	var createDet = /* #__PURE__ */factory(name$H, dependencies$I, function (_ref) {
 	  var typed = _ref.typed,
 	      matrix = _ref.matrix,
 	      subtract = _ref.subtract,
@@ -27223,7 +27400,7 @@
 	   * @param {Array | Matrix} x  A matrix
 	   * @return {number} The determinant of `x`
 	   */
-	  return typed(name$E, {
+	  return typed(name$H, {
 	    any: function any(x) {
 	      return clone(x);
 	    },
@@ -27330,9 +27507,9 @@
 	  }
 	});
 
-	var name$F = 'inv';
-	var dependencies$G = ['typed', 'matrix', 'divideScalar', 'addScalar', 'multiply', 'unaryMinus', 'det', 'identity', 'abs'];
-	var createInv = /* #__PURE__ */factory(name$F, dependencies$G, function (_ref) {
+	var name$I = 'inv';
+	var dependencies$J = ['typed', 'matrix', 'divideScalar', 'addScalar', 'multiply', 'unaryMinus', 'det', 'identity', 'abs'];
+	var createInv = /* #__PURE__ */factory(name$I, dependencies$J, function (_ref) {
 	  var typed = _ref.typed,
 	      matrix = _ref.matrix,
 	      divideScalar = _ref.divideScalar,
@@ -27363,7 +27540,7 @@
 	   * @param {number | Complex | Array | Matrix} x     Matrix to be inversed
 	   * @return {number | Complex | Array | Matrix} The inverse of `x`.
 	   */
-	  return typed(name$F, {
+	  return typed(name$I, {
 	    'Array | Matrix': function ArrayMatrix(x) {
 	      var size = isMatrix(x) ? x.size() : arraySize(x);
 
@@ -27528,9 +27705,9 @@
 	  }
 	});
 
-	var name$G = 'divide';
-	var dependencies$H = ['typed', 'matrix', 'multiply', 'equalScalar', 'divideScalar', 'inv'];
-	var createDivide = /* #__PURE__ */factory(name$G, dependencies$H, function (_ref) {
+	var name$J = 'divide';
+	var dependencies$K = ['typed', 'matrix', 'multiply', 'equalScalar', 'divideScalar', 'inv'];
+	var createDivide = /* #__PURE__ */factory(name$J, dependencies$K, function (_ref) {
 	  var typed = _ref.typed,
 	      matrix = _ref.matrix,
 	      multiply = _ref.multiply,
@@ -27601,9 +27778,9 @@
 	  }, divideScalar.signatures));
 	});
 
-	var name$H = 'mean';
-	var dependencies$I = ['typed', 'add', 'divide'];
-	var createMean = /* #__PURE__ */factory(name$H, dependencies$I, function (_ref) {
+	var name$K = 'mean';
+	var dependencies$L = ['typed', 'add', 'divide'];
+	var createMean = /* #__PURE__ */factory(name$K, dependencies$L, function (_ref) {
 	  var typed = _ref.typed,
 	      add = _ref.add,
 	      divide = _ref.divide;
@@ -27635,7 +27812,7 @@
 	   * @param {... *} args  A single matrix or or multiple scalar values
 	   * @return {*} The mean of all values
 	   */
-	  return typed(name$H, {
+	  return typed(name$K, {
 	    // mean([a, b, c, d, ...])
 	    'Array | Matrix': _mean,
 	    // mean([a, b, c, d, ...], dim)
@@ -27696,9 +27873,9 @@
 	});
 
 	var DEFAULT_NORMALIZATION = 'unbiased';
-	var name$I = 'variance';
-	var dependencies$J = ['typed', 'add', 'subtract', 'multiply', 'divide', 'apply', 'isNaN'];
-	var createVariance = /* #__PURE__ */factory(name$I, dependencies$J, function (_ref) {
+	var name$L = 'variance';
+	var dependencies$M = ['typed', 'add', 'subtract', 'multiply', 'divide', 'apply', 'isNaN'];
+	var createVariance = /* #__PURE__ */factory(name$L, dependencies$M, function (_ref) {
 	  var typed = _ref.typed,
 	      add = _ref.add,
 	      subtract = _ref.subtract,
@@ -27760,7 +27937,7 @@
 	   *                        Determines the axis to compute the variance for a matrix
 	   * @return {*} The variance
 	   */
-	  return typed(name$I, {
+	  return typed(name$L, {
 	    // variance([a, b, c, d, ...])
 	    'Array | Matrix': function ArrayMatrix(array) {
 	      return _var(array, DEFAULT_NORMALIZATION);
@@ -27851,11 +28028,11 @@
 	      throw improveErrorMessage(err, 'variance');
 	    }
 	  }
-	}); // For backward compatibility, deprecated since version 6.0.0. Date: 2018-11-09
+	});
 
-	var name$J = 'std';
-	var dependencies$K = ['typed', 'sqrt', 'variance'];
-	var createStd = /* #__PURE__ */factory(name$J, dependencies$K, function (_ref) {
+	var name$M = 'std';
+	var dependencies$N = ['typed', 'sqrt', 'variance'];
+	var createStd = /* #__PURE__ */factory(name$M, dependencies$N, function (_ref) {
 	  var typed = _ref.typed,
 	      sqrt = _ref.sqrt,
 	      variance = _ref.variance;
@@ -27912,7 +28089,7 @@
 	   *                        Determines the axis to compute the standard deviation for a matrix
 	   * @return {*} The standard deviation
 	   */
-	  return typed(name$J, {
+	  return typed(name$M, {
 	    // std([a, b, c, d, ...])
 	    'Array | Matrix': _std,
 	    // std([a, b, c, d, ...], normalization)
@@ -27998,6 +28175,9 @@
 	  config: config,
 	  typed: typed
 	});
+	var conj = /* #__PURE__ */createConj({
+	  typed: typed
+	});
 	var SparseMatrix = /* #__PURE__ */createSparseMatrixClass({
 	  Matrix: Matrix,
 	  equalScalar: equalScalar,
@@ -28015,6 +28195,11 @@
 	  SparseMatrix: SparseMatrix,
 	  config: config,
 	  matrix: matrix,
+	  typed: typed
+	});
+	var size = /* #__PURE__ */createSize({
+	  matrix: matrix,
+	  config: config,
 	  typed: typed
 	});
 	var smaller = /* #__PURE__ */createSmaller({
@@ -28041,11 +28226,19 @@
 	  matrix: matrix,
 	  typed: typed
 	});
+	var dot = /* #__PURE__ */createDot({
+	  addScalar: addScalar,
+	  conj: conj,
+	  multiplyScalar: multiplyScalar,
+	  size: size,
+	  typed: typed
+	});
 	var abs$5 = /* #__PURE__ */createAbs({
 	  typed: typed
 	});
 	var multiply = /* #__PURE__ */createMultiply({
 	  addScalar: addScalar,
+	  dot: dot,
 	  equalScalar: equalScalar,
 	  matrix: matrix,
 	  multiplyScalar: multiplyScalar,
@@ -28245,7 +28438,7 @@
 	  }
 
 	  Monogram.prototype.json = function () {
-	    return JSON.stringify(__spread(this.clientFingerprint));
+	    return JSON.stringify(Object.fromEntries(this.clientFingerprint));
 	  };
 
 	  Monogram.prototype.data = function () {

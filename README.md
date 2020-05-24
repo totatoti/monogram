@@ -32,6 +32,8 @@ var hash = monogram.hash([
   'languages',
   'cookie_enabled',
   'plugin_list_hash',
+  'webdriver',
+  'isnan_length',
   'screen_width',
   'screen_height',
   'screen_avail_width',
@@ -70,7 +72,7 @@ var hash = monogram.hash([
   'math_log1p',
   'math_sinh',
   'math_cosh',
-  'math_tanh'
+  'math_tanh',
 ])
 console.log(hash)
 ```

@@ -10,6 +10,8 @@ export class Browser implements FingerprintIntarface {
     fingerprints.set('languages', new Attribute(window.navigator.languages.join(','), 1))
     fingerprints.set('cookie_enabled', new Attribute(String(navigator.cookieEnabled), 1))
     fingerprints.set('plugin_list_hash', new Attribute(this.pluginListHash(), 1))
+    fingerprints.set('webdriver', new Attribute(String(window.navigator.webdriver), 1))
+    fingerprints.set('isnan_length', new Attribute(String(isNaN.toString().length), 1))
 
     return fingerprints
   }

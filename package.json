@@ -27,7 +27,7 @@
     "twgl.js": "^4.15.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.10.2",
+    "@babel/core": "^7.10.3",
     "@babel/preset-env": "^7.10.3",
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^9.0.1",

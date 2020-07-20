@@ -23,7 +23,7 @@
     "@types/webgl2": "0.0.5",
     "core-js": "^3.6.5",
     "crypto-js": "^4.0.0",
-    "mathjs": "^7.0.2",
+    "mathjs": "^7.1.0",
     "twgl.js": "^4.15.2"
   },
   "devDependencies": {

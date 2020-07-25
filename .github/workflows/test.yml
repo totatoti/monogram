@@ -1,0 +1,17 @@
+name: test
+on: [pull_request]
+
+jobs:
+  karma:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: install dependencies
+        run: npm ci
+      - name: test
+        run: npm run test -- --single-run

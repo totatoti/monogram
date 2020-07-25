@@ -55,13 +55,5 @@ module.exports = function (config) {
     // Concurrency level
     // how many browser should be started simultaneous
     concurrency: Infinity,
-
-    junitReporter: {
-      outputDir: 'report',
-    },
-    coverageReporter: {
-      dir: 'report',
-      reporters: [{ type: 'html' }, { type: 'cobertura' }],
-    },
   })
 }

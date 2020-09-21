@@ -20,7 +20,7 @@
   "homepage": "https://github.com/totatoti/monogram#readme",
   "dependencies": {
     "@types/crypto-js": "^3.1.47",
-    "@types/webgl-ext": "0.0.31",
+    "@types/webgl-ext": "0.0.32",
     "@types/webgl2": "0.0.5",
     "core-js": "^3.6.5",
     "crypto-js": "^4.0.0",
